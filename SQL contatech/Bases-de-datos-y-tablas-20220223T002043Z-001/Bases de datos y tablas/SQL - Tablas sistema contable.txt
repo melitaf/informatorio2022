@@ -1,0 +1,272 @@
+-- CREACION DE TABLAS -- 
+
+CREATE TABLE IF NOT EXISTS cuentas_contables (
+    id_cuenta INTEGER PRIMARY KEY,
+    nombre_cuenta VARCHAR(255) NOT NULL,
+    categoria VARCHAR(30),
+    descripcion VARCHAR(30)
+);
+
+CREATE TABLE IF NOT EXISTS clientes (
+    id_cliente INTEGER PRIMARY KEY,
+    razon_social VARCHAR(255) NOT NULL,
+    nombre_fantasia VARCHAR(255),
+    CUIToDNI INTEGER
+);
+
+CREATE TABLE IF NOT EXISTS cobranzas (
+    id_cobro INTEGER PRIMARY KEY,
+    fecha_cobro DATE NOT NULL,
+    forma_cobro TEXT,
+    total DECIMAL(20,2) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS facturas_venta (
+    id_factura INTEGER PRIMARY KEY,
+    fecha_factura DATE NOT NULL,
+    fecha_vencimiento DATE,
+    descripcion TEXT,
+    total DECIMAL(10,2) NOT NULL,
+    cliente_id INTEGER,
+    cobranza_id INTEGER,
+    FOREIGN KEY(cliente_id) REFERENCES clientes(id_cliente),
+    FOREIGN KEY(cobranza_id) REFERENCES cobranzas(id_cobro)
+);
+
+CREATE TABLE IF NOT EXISTS lineas_facturas_venta (
+    id_linea_factura INTEGER PRIMARY KEY,
+    factura_id INTEGER,
+    cuenta_id INTEGER,
+    total_concepto DECIMAL(10,2) NOT NULL,
+    FOREIGN KEY(cuenta_id) REFERENCES cuentas_contables(id_cuenta),
+    FOREIGN KEY(factura_id) REFERENCES facturas_venta(id_factura)
+);
+
+CREATE TABLE IF NOT EXISTS lineas_cobranzas (
+    id_linea_cobranza INTEGER PRIMARY KEY,
+    cobranza_id INTEGER,
+    cuenta_id INTEGER,
+    total_concepto DECIMAL(10,2) NOT NULL,
+    FOREIGN KEY(cuenta_id) REFERENCES cuentas_contables(id_cuenta),
+    FOREIGN KEY(cobranza_id) REFERENCES cobranzas(id_cobro)
+);
+
+CREATE TABLE IF NOT EXISTS ingresos_dinero (
+    id_ingreso INTEGER PRIMARY KEY,
+    fecha DATE NOT NULL,
+    descripcion TEXT,
+    total DECIMAL(20,2) NOT NULL,
+    cliente_id INTEGER,
+    FOREIGN KEY(cliente_id) REFERENCES clientes(id_cliente)
+);
+
+CREATE TABLE IF NOT EXISTS lineas_ingresos_dinero (
+    id_lineas_ingresos INTEGER PRIMARY KEY,
+    total_concepto DECIMAL(10,2) NOT NULL,
+    ingresos_dinero_id INTEGER,
+    cuenta_id INTEGER,
+    FOREIGN KEY(cuenta_id) REFERENCES cuentas_contables(id_cuenta),
+    FOREIGN KEY(ingresos_dinero_id) REFERENCES ingresos_dinero(id_ingreso)
+);
+
+CREATE TABLE IF NOT EXISTS proveedores (
+    id_proveedor INTEGER PRIMARY KEY,
+    razon_social TEXT NOT NULL,
+    nombre_fantasia TEXT,
+    CUIToDNI INTEGER
+);
+
+CREATE TABLE IF NOT EXISTS pagos (
+    id_pago INTEGER PRIMARY KEY,
+    fecha_pago DATE NOT NULL,
+    forma_pago TEXT,
+    total DECIMAL(20,2) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS lineas_pagos (
+    id_linea_pago INTEGER PRIMARY KEY,
+    pago_id INTEGER,
+    cuenta_id INTEGER,
+    total_concepto DECIMAL(10,2) NOT NULL,
+    FOREIGN KEY(cuenta_id) REFERENCES cuentas_contables(id_cuenta),
+    FOREIGN KEY(pago_id) REFERENCES pagos(id_pago)
+);
+
+CREATE TABLE IF NOT EXISTS facturas_compra (
+    id_factura INTEGER PRIMARY KEY,
+    fecha_factura DATE NOT NULL,
+    fecha_vencimiento DATE,
+    descripcion TEXT,
+    total DECIMAL(10,2) NOT NULL,
+    proveedor_id INTEGER,
+    pago_id INTEGER,
+    FOREIGN KEY(proveedor_id) REFERENCES proveedores(id_proveedor),
+    FOREIGN KEY(pago_id) REFERENCES pagos(id_pago)
+);
+
+CREATE TABLE IF NOT EXISTS lineas_facturas_compra (
+    id_linea_factura INTEGER PRIMARY KEY,
+    factura_id INTEGER,
+    cuenta_id INTEGER,
+    total_concepto DECIMAL(10,2) NOT NULL,
+    FOREIGN KEY(cuenta_id) REFERENCES cuentas_contables(id_cuenta),
+    FOREIGN KEY(factura_id) REFERENCES facturas_compra(id_factura)
+);
+
+CREATE TABLE IF NOT EXISTS envios_dinero (
+    id_envio_dinero INTEGER PRIMARY KEY,
+    fecha DATE NOT NULL,
+    descripcion TEXT,
+    total DECIMAL(20,2) NOT NULL,
+    proveedor_id INTEGER,
+    FOREIGN KEY(proveedor_id) REFERENCES proveedores(id_proveedor)
+);
+
+CREATE TABLE IF NOT EXISTS lineas_envios_dinero (
+    id_lineas_envio_dinero INTEGER PRIMARY KEY,
+    envio_dinero_id INTEGER,
+    cuenta_id INTEGER,
+    total_concepto DECIMAL(10,2) NOT NULL,
+    FOREIGN KEY(cuenta_id) REFERENCES cuentas_contables(id_cuenta),
+    FOREIGN KEY(envio_dinero_id) REFERENCES envios_dinero(id_envio_dinero)
+);
+
+
+-- INSERCION DE DATOS --
+
+INSERT INTO cuentas_contables VALUES (100, "Banco", "ACTIVO", "BANCO");
+INSERT INTO cuentas_contables VALUES (120, "Clientes a cobrar", "ACTIVO", "CUENTAS CORRIENTES");
+INSERT INTO cuentas_contables VALUES (130, "Caja chica", "ACTIVO", "CAJA");
+INSERT INTO cuentas_contables VALUES (140, "Pagos por adelantado", "ACTIVO", "CUENTAS CORRIENTES");
+INSERT INTO cuentas_contables VALUES (150, "Retenciones pagadas", "ACTIVO", "CUENTAS CORRIENTES");
+INSERT INTO cuentas_contables VALUES (310, "Cuentas por pagar", "PASIVO", "DEUDAS COMERCIALES");
+INSERT INTO cuentas_contables VALUES (320, "Gastos devengados", "PASIVO", "OTRAS DEUDAS");
+INSERT INTO cuentas_contables VALUES (330, "Ingresos recibidos por adelantado", "PASIVO", "DEUDAS COMERCIALES");
+INSERT INTO cuentas_contables VALUES (340, "Salarios a pagar", "PASIVO", "DEUDAS SOCIALES");
+INSERT INTO cuentas_contables VALUES (360, "Impuestos a pagar", "PASIVO", "DEUDAS IMPOSITIVAS");
+INSERT INTO cuentas_contables VALUES (410, "Capital", "PATRIMONIO NETO", "CAPITAL");
+INSERT INTO cuentas_contables VALUES (420, "Reservas", "PATRIMONIO NETO", "RESERVAS");
+INSERT INTO cuentas_contables VALUES (430, "Resultados", "PATRIMONIO NETO", "RESULTADOS");
+INSERT INTO cuentas_contables VALUES (510, "Ventas", "INGRESOS", "INGRESOS POR VENTAS");
+INSERT INTO cuentas_contables VALUES (520, "Otros ingresos", "INGRESOS", "OTROS INGRESOS");
+INSERT INTO cuentas_contables VALUES (530, "Intereses ganados", "INGRESOS", "OTROS INGRESOS");
+INSERT INTO cuentas_contables VALUES (540, "Dividendos ganados", "INGRESOS", "OTROS INGRESOS");
+INSERT INTO cuentas_contables VALUES (610, "Compras", "EGRESOS", "COSTO DE VENTAS");
+INSERT INTO cuentas_contables VALUES (620, "Gastos generales", "EGRESOS", "GASTOS DE ADM");
+INSERT INTO cuentas_contables VALUES (630, "Servicios", "EGRESOS", "GASTOS DE ADM");
+INSERT INTO cuentas_contables VALUES (640, "Publicidad", "EGRESOS", "GASTOS DE ADM");
+INSERT INTO cuentas_contables VALUES (700, "Impuestos", "EGRESOS", "GASTOS DE ADM");
+INSERT INTO cuentas_contables VALUES (730, "Gastos de oficina", "EGRESOS", "GASTOS DE ADM");
+INSERT INTO cuentas_contables VALUES (820, "Comisiones bancarias", "EGRESOS", "GASTOS DE FIN");
+INSERT INTO cuentas_contables VALUES (830, "Gastos de intereses", "EGRESOS", "GASTOS DE FIN");
+INSERT INTO cuentas_contables VALUES (840, "Impuesto a las ganancias", "EGRESOS", "IMPUESTO A LAS GCIAS");
+
+
+INSERT INTO clientes VALUES (1, "Empresa Nueva S.A", "Sistema Nuevo", 3888888);
+INSERT INTO clientes VALUES (2, "ACME S.A", "ACME", 3999999);
+INSERT INTO clientes VALUES (3, "Technologies S.A", "Tecnosoft", 4000000);
+
+
+INSERT INTO cobranzas VALUES (1,"2021/01/12", "transferencia", 20000);
+INSERT INTO cobranzas VALUES (2,"2021/01/21", "caja", 20000);
+INSERT INTO cobranzas VALUES (3,"2021/01/31", "transferencia", 20000);
+INSERT INTO cobranzas VALUES (4,"2021/01/31", "caja", 20000);
+
+
+INSERT INTO facturas_venta VALUES (1,"2021/01/12","2021/01/12","venta de productos de tecnologia",20000,1,1);
+INSERT INTO facturas_venta VALUES (2,"2021/01/12","2021/01/21","venta de productos de tecnologia",20000,2,2);
+INSERT INTO facturas_venta VALUES (3,"2021/01/13","2021/01/21","venta de productos de tecnologia",20000,3,3);
+INSERT INTO facturas_venta VALUES (4,"2021/01/14","2021/01/29","venta de productos de tecnologia",20000,1,4);
+INSERT INTO facturas_venta VALUES (5,"2021/01/20","2021/02/20","venta de productos de tecnologia",25000,2,NULL); 
+INSERT INTO facturas_venta VALUES (6,"2021/01/21","2021/02/21","venta de productos de tecnologia",25000,3,NULL);
+INSERT INTO facturas_venta VALUES (7,"2021/01/22","2021/02/22","venta de productos de tecnologia",25000,1,NULL);
+INSERT INTO facturas_venta VALUES (8,"2021/01/22","2021/02/22","venta de productos de tecnologia",25000,2,NULL);
+INSERT INTO facturas_venta VALUES (9,"2021/01/30","2021/02/28","venta de productos de tecnologia",25000,3,NULL);
+
+
+INSERT INTO lineas_facturas_venta VALUES (1,1,510,20000);
+INSERT INTO lineas_facturas_venta VALUES (2,1,120,20000);
+INSERT INTO lineas_facturas_venta VALUES (3,2,510,20000);
+INSERT INTO lineas_facturas_venta VALUES (4,2,120,20000);
+INSERT INTO lineas_facturas_venta VALUES (5,3,510,20000);
+INSERT INTO lineas_facturas_venta VALUES (6,3,120,20000);
+INSERT INTO lineas_facturas_venta VALUES (7,4,510,20000);
+INSERT INTO lineas_facturas_venta VALUES (8,4,120,20000);
+INSERT INTO lineas_facturas_venta VALUES (9,5,510,25000);
+INSERT INTO lineas_facturas_venta VALUES (10,5,120,25000);
+INSERT INTO lineas_facturas_venta VALUES (11,6,510,25000);
+INSERT INTO lineas_facturas_venta VALUES (12,6,120,25000);
+INSERT INTO lineas_facturas_venta VALUES (13,7,510,25000);
+INSERT INTO lineas_facturas_venta VALUES (14,7,120,25000);
+INSERT INTO lineas_facturas_venta VALUES (15,8,510,25000);
+INSERT INTO lineas_facturas_venta VALUES (16,8,120,25000);
+INSERT INTO lineas_facturas_venta VALUES (17,9,510,25000);
+INSERT INTO lineas_facturas_venta VALUES (18,9,120,25000);
+
+
+INSERT INTO lineas_cobranzas VALUES (1,1,100,20000);
+INSERT INTO lineas_cobranzas VALUES (2,1,120,-20000);
+INSERT INTO lineas_cobranzas VALUES (3,2,120,20000);
+INSERT INTO lineas_cobranzas VALUES (4,2,120,-20000);
+INSERT INTO lineas_cobranzas VALUES (5,3,100,20000);
+INSERT INTO lineas_cobranzas VALUES (6,3,120,-20000);
+INSERT INTO lineas_cobranzas VALUES (7,4,130,20000);
+INSERT INTO lineas_cobranzas VALUES (8,4,120,-20000);
+
+
+INSERT INTO ingresos_dinero VALUES (1,"2021/01/15","intereses del banco",250,NULL);
+INSERT INTO ingresos_dinero VALUES (2,"2021/01/25","diferencias de caja",2500,NULL);
+
+
+INSERT INTO lineas_ingresos_dinero VALUES (1,250,1,100);
+INSERT INTO lineas_ingresos_dinero VALUES (2,250,1,530);
+INSERT INTO lineas_ingresos_dinero VALUES (3,2500,1,100);
+INSERT INTO lineas_ingresos_dinero VALUES (4,2500,1,520);
+
+
+INSERT INTO proveedores VALUES (1,"Juan Manuel Di Marco","ContaTech",4111111);
+INSERT INTO proveedores VALUES (2,"Mac Mania S.A","Mac Mania",42222222);
+INSERT INTO proveedores VALUES (3,"Componentes electrónicos SAC","PC Worx",43333333);
+INSERT INTO proveedores VALUES (4,"Compañía Enigma SRL","Enigma",44444444);
+
+
+INSERT INTO pagos VALUES (1,"2021/01/28","transferencia",1710);
+INSERT INTO pagos VALUES (2,"2021/01/30","transferencia",1610);
+
+
+INSERT INTO lineas_pagos VALUES (1,1,310,1710);
+INSERT INTO lineas_pagos VALUES (2,1,100,-1710);
+INSERT INTO lineas_pagos VALUES (3,2,310,1610);
+INSERT INTO lineas_pagos VALUES (4,2,100,-1610);
+
+
+INSERT INTO facturas_compra VALUES (1,"2021/01/20","20/02/20","compra de productos informaticos",300,2,NULL);
+INSERT INTO facturas_compra VALUES (2,"2021/01/20","20/02/20","compra de productos informaticos",180,2,NULL);
+INSERT INTO facturas_compra VALUES (3,"2021/01/20","20/02/20","compra de productos informaticos",220,1,NULL);
+INSERT INTO facturas_compra VALUES (4,"2021/01/28","28/02/20","compra de productos informaticos",1710,4,1);
+INSERT INTO facturas_compra VALUES (5,"2021/01/28","28/02/20","compra de productos informaticos",1610,3,2);
+
+
+INSERT INTO lineas_facturas_compra VALUES (1,1,610,300);
+INSERT INTO lineas_facturas_compra VALUES (2,1,310,300);
+INSERT INTO lineas_facturas_compra VALUES (3,2,610,180);
+INSERT INTO lineas_facturas_compra VALUES (4,2,310,180);
+INSERT INTO lineas_facturas_compra VALUES (5,3,610,220);
+INSERT INTO lineas_facturas_compra VALUES (6,3,310,220);
+INSERT INTO lineas_facturas_compra VALUES (7,4,610,1710);
+INSERT INTO lineas_facturas_compra VALUES (8,4,310,1710);
+INSERT INTO lineas_facturas_compra VALUES (9,5,610,1610);
+INSERT INTO lineas_facturas_compra VALUES (10,5,310,1610);
+
+
+INSERT INTO envios_dinero VALUES (1,"2021/01/25","gastos de intereses",745,NULL);
+INSERT INTO envios_dinero VALUES (2,"2021/01/26","impuestos",600,NULL);
+
+
+INSERT INTO lineas_envios_dinero VALUES(1,1,830,745);
+INSERT INTO lineas_envios_dinero VALUES(2,1,100,745);
+INSERT INTO lineas_envios_dinero VALUES(3,2,700,600);
+INSERT INTO lineas_envios_dinero VALUES(4,2,100,600);
+
+
+
